@@ -7,32 +7,36 @@ def load_data(filepath):
     return bars
 
 
+def g(bar, val1):
+    if val1 is None:
+        return bar['Cells']['SeatsCount']
+    elif val1 == 'N':
+        return bar['Cells']['Name']
+    else:
+        return bar['Cells']['geoData']['coordinates'][val1]
+
+
 def get_biggest_bar(data):
-    bars = data
-    biggest = max(bars, key=lambda bar: bar['Cells']['SeatsCount'])
-    return biggest['Cells']['Name']
+    b = max(data, key=lambda bar: g(bar, None))
+    return g(b, 'N')
 
 
 def get_smallest_bar(data):
-    bars = data
-    smallest = min(bars, key=lambda bar: bar['Cells']['SeatsCount'])
-    return smallest['Cells']['Name']
+    s = min(data, key=lambda bar: g(bar, None))
+    return g(s, 'N')
 
 
-def get_closest_bar(data, longitude, latitude):
-    bars = data
-    closest = min(bars, key=lambda \
-                  bar:abs(longitude - \
-                  bar['Cells']['geoData']['coordinates'][0]) + \
-                  latitude - bar['Cells']['geoData']['coordinates'][1])
-    return closest['Cells']['Name']
+def get_closest_bar(data, lon, lat):
+    close = min(data, key=lambda bar: abs(lon - g(bar, 0) + lat - g(bar, 1)))
+    return g(close, 'N')
+
+
 if __name__ == '__main__':
     filepath = input('Введите путь до файла ')
     longitude = float(input('Введите вашу долготу '))
     latitude = float(input('Введите вашу широту '))
-    load_data(filepath)
-    biggest = get_biggest_bar(load_data(filepath))
-    smallest = get_smallest_bar(load_data(filepath))
-    closest = get_closest_bar(load_data(filepath), longitude, latitude)
+    load = load_data(filepath)
 print("The biggest bar is %s. The smallest bar is %s."
-      "The closest bar is %s" % (biggest, smallest, closest))
+      "The closest bar is %s" % (get_biggest_bar(load),
+                                 get_smallest_bar(load),
+                                 get_closest_bar(load, longitude, latitude)))
